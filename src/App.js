@@ -4,9 +4,12 @@ function App() {
   // Generate shuffled images
   const generateShuffledImages = useCallback(() => {
     const images = [];
-    for (let i = 1; i <= 25; i++) images.push(`/images/image${i}.jpg`);
+    for (let i = 1; i <= 25; i++) {
+      const num = i.toString().padStart(2, "0"); // Pads 1 → 01, 2 → 02, etc.
+      images.push(`${process.env.PUBLIC_URL}/images/image${num}.jpg`);
+    }
 
-    // Shuffle
+    // Shuffle array
     for (let i = images.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1));
       [images[i], images[j]] = [images[j], images[i]];
@@ -17,6 +20,14 @@ function App() {
   const [shuffledImages, setShuffledImages] = useState(generateShuffledImages);
   const [index, setIndex] = useState(0);
   const [musicStarted, setMusicStarted] = useState(false);
+
+  // Preload all images
+  useEffect(() => {
+    shuffledImages.forEach((src) => {
+      const img = new Image();
+      img.src = src;
+    });
+  }, [shuffledImages]);
 
   const nextImage = useCallback(() => {
     setIndex((prev) => {
@@ -37,22 +48,15 @@ function App() {
         const playPromise = audio.play();
         if (playPromise !== undefined) {
           playPromise
-            .then(() => {
-              setMusicStarted(true);
-            })
-            .catch((error) => {
-              console.log("Music play prevented:", error);
-            });
+            .then(() => setMusicStarted(true))
+            .catch((error) => console.log("Music play prevented:", error));
         }
       }
     }
   };
 
   useEffect(() => {
-    const interval = setInterval(() => {
-      nextImage();
-    }, 5000);
-
+    const interval = setInterval(nextImage, 2000);
     return () => clearInterval(interval);
   }, [nextImage]);
 
@@ -60,24 +64,30 @@ function App() {
     <div
       style={{
         display: "flex",
+        flexDirection: "column",
         justifyContent: "center",
         alignItems: "center",
         height: "100vh",
-        backgroundColor: "#D3D3D3"
+        backgroundColor: "#D3D3D3",
       }}
     >
       <img
         src={shuffledImages[index]}
-        alt="Random"
+        alt={`Random ${index + 1}`}
         onClick={handleClick}
         style={{
           maxWidth: "400px",
           maxHeight: "400px",
           cursor: "pointer",
-          objectFit: "contain"
+          objectFit: "contain",
+          marginBottom: "20px",
         }}
       />
-     
+      <audio
+        id="bg-music"
+        src={`${process.env.PUBLIC_URL}/music/background.mp3`}
+        loop
+      />
     </div>
   );
 }
