@@ -55,10 +55,17 @@ function App() {
     }
   };
 
+  // Auto-change image every 2 seconds
   useEffect(() => {
     const interval = setInterval(nextImage, 2000);
     return () => clearInterval(interval);
   }, [nextImage]);
+
+  // Get the actual image number for alt text
+  const getImageNumber = (src) => {
+    const match = src.match(/image(\d{2})\.jpg$/);
+    return match ? parseInt(match[1], 10) : index + 1;
+  };
 
   return (
     <div
@@ -73,7 +80,7 @@ function App() {
     >
       <img
         src={shuffledImages[index]}
-        alt={`Random ${index + 1}`}
+        alt={`Random ${getImageNumber(shuffledImages[index])}`}
         onClick={handleClick}
         style={{
           maxWidth: "400px",
