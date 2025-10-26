@@ -4,7 +4,7 @@ function App() {
   // Generate shuffled images
   const generateShuffledImages = useCallback(() => {
     const images = [];
-    for (let i = 1; i <= 25; i++) {
+    for (let i = 1; i <= 38; i++) {
       const num = i.toString().padStart(2, "0"); // Pads 1 → 01, 2 → 02, etc.
       images.push(`${process.env.PUBLIC_URL}/images/image${num}.jpg`);
     }
